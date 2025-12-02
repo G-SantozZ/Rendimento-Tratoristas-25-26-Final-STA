@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login – Citrus Agronomia</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card: #ffffff;
+      --primary: #0b3b7a;
+      --accent: #f59e0b;
+      --border: #e5e7eb;
+      --danger: #dc2626;
+      --radius: 1rem;
+      --shadow: 0 10px 35px rgba(15,23,42,0.35);
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    html,body { height:100%; font-family:"Inter",sans-serif; background:var(--bg); color:#111827; }
+
+    body {
+      display:flex; justify-content:center; align-items:center;
+      background:
+        radial-gradient(circle at top right, rgba(245,158,11,0.18), transparent 55%),
+        radial-gradient(circle at bottom left, rgba(37,99,235,0.25), transparent 55%),
+        var(--bg);
+    }
+
+    .card {
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:2rem 2rem 2.3rem;
+      width:100%;
+      max-width:400px;
+      border:1px solid var(--border);
+    }
+
+    h1 {
+      font-size:1.4rem;
+      font-weight:700;
+      color:var(--primary);
+      text-align:center;
+      margin-bottom:.3rem;
+    }
+
+    .subtitle {
+      text-align:center;
+      color:#6b7280;
+      font-size:.9rem;
+      margin-bottom:1.6rem;
+    }
+
+    label {
+      font-weight:600;
+      color:#374151;
+      font-size:.85rem;
+      margin-bottom:.35rem;
+      display:block;
+    }
+
+    input {
+      width:100%;
+      padding:.65rem .75rem;
+      border:1.3px solid #d1d5db;
+      border-radius:.6rem;
+      margin-bottom:1rem;
+      font-size:.9rem;
+    }
+
+    input:focus {
+      outline:none;
+      border-color:#2563eb;
+      box-shadow:0 0 0 3px rgba(37,99,235,0.25);
+    }
+
+    button {
+      width:100%;
+      padding:.8rem;
+      background:linear-gradient(135deg,#0b3b7a,#172554);
+      color:white;
+      font-weight:700;
+      text-transform:uppercase;
+      border:none;
+      border-radius:999px;
+      cursor:pointer;
+      letter-spacing:.06em;
+    }
+
+    button:hover { filter:brightness(1.05); }
+
+    .error {
+      display:none;
+      color:var(--danger);
+      background:#fef2f2;
+      border:1px solid #fecaca;
+      border-radius:.5rem;
+      padding:.4rem .7rem;
+      margin-top:.8rem;
+      text-align:center;
+      font-size:.85rem;
+    }
+
+    .helper {
+      margin-top:1rem;
+      text-align:center;
+      font-size:.8rem;
+      color:#6b7280;
+    }
+
+    .helper strong { color:#111827; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Login – Gestão Agro</h1>
+    <p class="subtitle">Entre com seu usuário e senha</p>
+
+    <label for="usuario">Usuário</label>
+    <input id="usuario" type="text" placeholder="Ex: admin, wilson ou adelino">
+
+    <label for="senha">Senha</label>
+    <input id="senha" type="password" placeholder="••••••••">
+
+    <button id="btn-login">Entrar</button>
+    <div id="erro" class="error">Usuário ou senha incorretos.</div>
+
+    <div class="helper">
+      <strong>admin</strong> → todas as fazendas<br>
+      <strong>wilson</strong> → todas as fazendas<br>
+      <strong>adelino</strong> → apenas SANTA ANA
+    </div>
+  </div>
+
+  <script>
+  const $ = id => document.getElementById(id);
+
+  // ==================== DADOS DOS USUÁRIOS ====================
+  const TODAS_FAZENDAS = [
+    "BOA ESPERANÇA", "SANTA ANA", "SLP", "SANTA CLARA", "CAMBARA",
+    "MONJOLINHO", "PAINEIRAS", "SANTA MARIA", "IGARATA", "RUBIÃO"
+  ];
+
+  const USUARIOS = {
+    "admin":    { senha: "admin000",     admin: true,  fazendas: null },
+    "wilson":   { senha: "wilson000",    admin: true,  fazendas: null },
+
+    // GERENTES (login pode ser maiúscula ou minúscula)
+    "adelino":  { senha: "Adelino123",   admin: false, fazendas: ["SANTA ANA"] },
+    "douglas":  { senha: "Douglas123",   admin: false, fazendas: ["BOA ESPERANÇA"] },
+    "marcos":   { senha: "Marcos123",    admin: false, fazendas: ["SLP"] },
+    "fabio":    { senha: "Fabio123",     admin: false, fazendas: ["SANTA CLARA"] },
+    "gilmar":   { senha: "Gilmar123",    admin: false, fazendas: ["CAMBARA"] },
+    "tiago":    { senha: "Tiago123",     admin: false, fazendas: ["MONJOLINHO", "PAINEIRAS"] },
+    "cristiano":{ senha: "Cristiano123", admin: false, fazendas: ["SANTA MARIA"] },
+    "rafael":   { senha: "Rafael123",    admin: false, fazendas: ["IGARATA"] },
+    "bertinho": { senha: "Bertinho123",  admin: false, fazendas: ["RUBIÃO"] }
+  };
+  // ============================================================
+
+  $("btn-login").onclick = () => {
+    const inputUsuario = $("usuario").value.trim();   // guarda exatamente como digitou (com maiúscula)
+    const senha        = $("senha").value.trim();
+
+    // aceita login com letra maiúscula ou minúscula
+    const usuarioLower = inputUsuario.toLowerCase();
+    const usuarioKey   = Object.keys(USUARIOS).find(k => k.toLowerCase() === usuarioLower);
+
+    // usuário não existe
+    if (!usuarioKey) {
+      $("erro").style.display = "block";
+      return;
+    }
+
+    const cred = USUARIOS[usuarioKey];
+
+    // senha errada
+    if (cred.senha !== senha) {
+      $("erro").style.display = "block";
+      return;
+    }
+
+    // LOGIN OK
+    $("erro").style.display = "none";
+
+    localStorage.setItem("usuario_logado", inputUsuario);           // exibe o nome bonitinho no painel
+    localStorage.setItem("is_admin", cred.admin ? "true" : "false");
+
+    if (cred.admin) {
+      localStorage.setItem("fazendas", JSON.stringify(TODAS_FAZENDAS));
+      localStorage.removeItem("fazendas_liberadas");
+    } else {
+      localStorage.setItem("fazendas_liberadas", JSON.stringify(cred.fazendas));
+      // garante que a lista completa exista (admin usa)
+      if (!localStorage.getItem("fazendas")) {
+        localStorage.setItem("fazendas", JSON.stringify(TODAS_FAZENDAS));
+      }
+    }
+
+    // define a primeira fazenda que ele vai ver
+    const primeiraFazenda = cred.admin ? TODAS_FAZENDAS[0] : cred.fazendas[0];
+    localStorage.setItem("fazenda_atual", primeiraFazenda);
+
+    window.location.href = "painel.html";
+  };
+
+  // permite logar com Enter em qualquer campo
+  ["usuario", "senha"].forEach(id => {
+    $(id).addEventListener("keypress", e => {
+      if (e.key === "Enter") $("btn-login").click();
+    });
+  });
+</script>
