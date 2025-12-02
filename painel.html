@@ -1256,7 +1256,7 @@
           diasSel.forEach(dia => {
             const existente = data[operador][frota][turno][unidade][dia] || {};
 
-            // se o campo estiver em branco, mantém o valor anterior
+            // mantém o programado antigo se input estiver vazio
             const novoP = progRaw !== "" ? pValor : (existente.p ?? 0);
             const novoR = realRaw !== "" ? rValor : (existente.r ?? 0);
 
@@ -1355,7 +1355,6 @@
 
                   if (!diasSomados[d]) diasSomados[d] = { p, r };
                   else {
-                    // apuração usa o maior valor dentre as frotas
                     diasSomados[d].p = Math.max(diasSomados[d].p, p);
                     diasSomados[d].r = Math.max(diasSomados[d].r, r);
                   }
@@ -1466,9 +1465,9 @@
     function calcularRanking() {
       const data = db.get();
       const turnoSel = $('turno').value;
-      const unidadeSel = $('unidade').value;
       const operacaoFiltro = $('operacao').value;
       const grupoFiltro = $('grupo').value;
+      const unidadeSel = $('unidade').value;
       const tbodyRanking = $('tbody-ranking');
 
       atualizarTituloRankingTabela();
@@ -1479,21 +1478,18 @@
         return;
       }
 
-      const frotasFiltro = getFrotasSelecionadasOuTodas(data);
-
       const arr = [];
 
       Object.entries(data).forEach(([operador, porFrota]) => {
-        // para cada operador, vamos guardar o MAIOR R por dia/unidade entre as frotas
-        const porUnidadeDia = {
+        // mapa dia/unidade -> maior R do dia (para não duplicar por frota)
+        const diasPorUnidade = {
           "BB": {},
           "HÁ": {},
           "KG": {},
           "PLT": {}
         };
 
-        frotasFiltro.forEach(frota => {
-          const regFrota = porFrota[frota];
+        Object.values(porFrota || {}).forEach(regFrota => {
           if (!regFrota) return;
 
           const turnosKeys = turnoSel === 'Todas' ? Object.keys(regFrota) : [turnoSel];
@@ -1504,54 +1500,51 @@
 
             Object.entries(regTurno || {}).forEach(([unidade, regUn]) => {
               if (!regUn) return;
+
               if (unidadeSel !== 'Todas' && unidadeSel !== unidade) return;
 
               DIAS.forEach(dia => {
                 const cel = regUn[dia];
                 if (!cel || !cel.r) return;
 
-                // filtro por operação
                 if (operacaoFiltro && cel.op !== operacaoFiltro) return;
 
-                // filtro por grupo
                 if (grupoFiltro && grupoFiltro !== "Todos") {
                   const g = getGrupoByOperacao(cel.op);
                   if (g !== grupoFiltro) return;
                 }
 
-                if (!porUnidadeDia[unidade]) porUnidadeDia[unidade] = {};
-                const atual = porUnidadeDia[unidade][dia] ?? 0;
-                const valor = Number(cel.r) || 0;
-
-                // ranking segue mesma lógica da apuração: usa o MAIOR valor por dia entre as frotas
-                if (valor > atual) {
-                  porUnidadeDia[unidade][dia] = valor;
-                }
+                const mapa = diasPorUnidade[unidade];
+                if (!mapa) return;
+                const atual = mapa[dia] || 0;
+                const novo = Number(cel.r) || 0;
+                if (novo > atual) mapa[dia] = novo;
               });
             });
           });
         });
 
-        let bb = 0, ha = 0, kg = 0, plt = 0;
+        let totalBB = 0, totalHA = 0, totalKG = 0, totalPLT = 0;
         const diasTrabalhadosSet = new Set();
 
-        Object.entries(porUnidadeDia).forEach(([unidade, diasObj]) => {
-          Object.entries(diasObj).forEach(([dia, valor]) => {
-            const v = Number(valor) || 0;
-            if (v <= 0) return;
+        Object.entries(diasPorUnidade).forEach(([unidade, mapaDias]) => {
+          Object.entries(mapaDias).forEach(([dia, val]) => {
+            if (!val) return;
+            if (unidade === "BB") totalBB += val;
+            else if (unidade === "HÁ") totalHA += val;
+            else if (unidade === "KG") totalKG += val;
+            else if (unidade === "PLT") totalPLT += val;
             diasTrabalhadosSet.add(dia);
-
-            if (unidade === "BB")      bb  += v;
-            else if (unidade === "HÁ") ha  += v;
-            else if (unidade === "KG") kg  += v;
-            else if (unidade === "PLT")plt += v;
           });
         });
 
-        if (bb > 0 || ha > 0 || kg > 0 || plt > 0) {
+        if (totalBB || totalHA || totalKG || totalPLT) {
           arr.push({
             operador,
-            bb, ha, kg, plt,
+            bb: totalBB,
+            ha: totalHA,
+            kg: totalKG,
+            plt: totalPLT,
             dias: diasTrabalhadosSet.size
           });
         }
@@ -1562,7 +1555,7 @@
         return;
       }
 
-      // ordena: mais dias, depois BB, HÁ, PLT, KG
+      // ordena: mais dias, depois BB, HÁ, PLANTAS, KG
       arr.sort((a, b) =>
         b.dias - a.dias ||
         b.bb - a.bb ||
