@@ -981,13 +981,42 @@
 
     // ================= DADOS FIXOS =================
     const FROTAS_FIXAS = {
-      "BOA ESPERANÇA": ["02-850","02-851","02-852","02-853","02-854","02-855"],
-      "SANTA ANA": ["02-722","02-723","02-727","02-758","02-728","02-732","02-733","02-741","02-743","02-737","02-740","02-739","02-747","02-746","02-076","02-748","02-749","02-750","02-751","02-752","02-014","02-058"],
-      "SLP": ["727", "728"]
+      "BOA ESPERANÇA": [
+        "02-813","02-817","02-818","02-824","02-828","02-829",
+        "02-831","02-832","02-834","02-835","02-836","02-838","02-1205"
+      ],
+      "SANTA ANA": [
+        "02-722","02-723","02-727","02-728","02-732","02-733","02-741","02-743",
+        "02-737","02-740","02-739","02-747","02-746","02-076","02-748","02-749",
+        "02-750","02-751","02-752","02-014","02-058"
+      ],
+      "SLP": [
+        "02-077","02-073","02-067","02-075","02-059","02-058",
+        "02-050","02-080","02-074","02-078","02-061","02-076",
+        "02-063","02-724","02-049"
+      ]
     };
 
     const TRATORISTAS_FIXOS = {
-      "BOA ESPERANÇA": ["GABRYEL ROBERTO CAMARGO DOS SANTOS"],
+      "BOA ESPERANÇA": [
+        "MOACIR CARLOS ADAMATTI JUNIOR",
+        "REMOÇÃO",
+        "JOSÉ LAZARO PROTASIO",
+        "JOSÉ VALTER DOS SANTOS",
+        "VALDECI DOS SANTOS DE OLIVEIRO",
+        "MAYCON JHONATHAN RAMOS MACHADO",
+        "ELIAS MIGUEL RODRIGUES",
+        "LUCIO ESTEVAN MARTINS",
+        "VALDINEZ DA SILVA",
+        "DANIEL THIAGO",
+        "NIVALDO MARIANO DA SILVA NETO",
+        "LUIZ RICARDO DA FONSECA",
+        "LUIZ ANTONIO DA SILVA OLIVEIRA",
+        "FRANCIELE ANTUNES DE LIMA",
+        "LIDIANE BALIK NUNES",
+        "ERICA FERNANDA DE CAMARGO DE OLIVEIRA",
+        "JOAO DONIZETE DOS SANTOS SILVA"
+      ],
       "SANTA ANA": [
         "ADRIEL AUGUSTO DE CAMARGO","ALAF RODRIGUES DE CAMARGO","ALISSON MARTINS DOS SANTOS",
         "ANDRE FELIPE GOMES BATISTA","ANTONIO BENEDITO RAMOS","AYRTON IZAAC NETO",
@@ -1000,7 +1029,31 @@
         "MAXSUEL DARIO DE OLIVEIRA","RAPHAEL DE OLIVEIRA","RICHARD DE OLIVEIRA",
         "RONALDO PEREIRA","ZAQUEU ROCHEL","DANILO GUSSON"
       ],
-      "SLP": ["JOÃO", "PEDRO", "MARIA"]
+      "SLP": [
+        "IGOR DE LIMA HENES",
+        "GABRIEL EDUARDO DA SILVA",
+        "LUCAS EDUARDO DA SILVA",
+        "NAZILDO VASCO DA SILVA",
+        "MARIO SEBASTIÃO",
+        "VALTER DONIZETE EUFRASIO",
+        "DOUGLAS GIOVANI VAZ",
+        "JOÃO PAULO DA SILVA AGAPTO",
+        "LUCAS EURICO PIRES LUCIO",
+        "PAULO MARTINS DE OLIVEIRA",
+        "JUNIO PIRES DE FREITAS",
+        "EDVALDO MACHADO DOS SANTOS",
+        "ROGERIO DA SILVA SANTI",
+        "ROBERTO SANTI",
+        "NIVALDO DE OLIVEIRA PAULINO",
+        "JOEL BENEDITO DOS SANTOS",
+        "RODRIGO DA MATA CENDRETO",
+        "GENIVALDO DONIZETE FARRAPO",
+        "EDSON DONIZETE DOS SANTOS",
+        "LUCAS APARECIDO AUGUSTO DA SILVA",
+        "VITTOR RAFAEL DE OLIVEIRA BONFIM",
+        "RICARDO DE JESUS LOPES",
+        "EVANDRO RODRIGUES"
+        ]
     };
 
     // ================= GRUPOS DE OPERAÇÃO =================
@@ -1126,15 +1179,6 @@
       return TRATORISTAS_FIXOS[fazenda] || [];
     }
 
-    // Seed exemplo pra SLP
-    if (fazendaAtual === "SLP" && Object.keys(db.get()).length === 0) {
-      db.set({
-        "JOÃO":  { "727": { "Dia": { "BB": { "seg": { p: 120, r: 118.5, op: "Inseticida" } } } } },
-        "PEDRO": { "727": { "Dia": { "BB": { "seg": { p: 110, r: 108,  op: "Inseticida" } } } } },
-        "MARIA": { "728": { "Dia": { "BB": { "seg": { p: 130, r: 132,  op: "Inseticida" } } } } }
-      });
-    }
-
     // =============== Choices ===============  
     let choicesFrota, choicesOper, choicesDias;
 
@@ -1256,7 +1300,7 @@
           diasSel.forEach(dia => {
             const existente = data[operador][frota][turno][unidade][dia] || {};
 
-            // mantém o programado antigo se input estiver vazio
+            // se o campo estiver em branco, mantém o valor anterior
             const novoP = progRaw !== "" ? pValor : (existente.p ?? 0);
             const novoR = realRaw !== "" ? rValor : (existente.r ?? 0);
 
@@ -1355,6 +1399,7 @@
 
                   if (!diasSomados[d]) diasSomados[d] = { p, r };
                   else {
+                    // apuração usa o maior valor dentre as frotas
                     diasSomados[d].p = Math.max(diasSomados[d].p, p);
                     diasSomados[d].r = Math.max(diasSomados[d].r, r);
                   }
@@ -1465,9 +1510,9 @@
     function calcularRanking() {
       const data = db.get();
       const turnoSel = $('turno').value;
+      const unidadeSel = $('unidade').value;
       const operacaoFiltro = $('operacao').value;
       const grupoFiltro = $('grupo').value;
-      const unidadeSel = $('unidade').value;
       const tbodyRanking = $('tbody-ranking');
 
       atualizarTituloRankingTabela();
@@ -1478,18 +1523,21 @@
         return;
       }
 
+      const frotasFiltro = getFrotasSelecionadasOuTodas(data);
+
       const arr = [];
 
       Object.entries(data).forEach(([operador, porFrota]) => {
-        // mapa dia/unidade -> maior R do dia (para não duplicar por frota)
-        const diasPorUnidade = {
+        // para cada operador, vamos guardar o MAIOR R por dia/unidade entre as frotas
+        const porUnidadeDia = {
           "BB": {},
           "HÁ": {},
           "KG": {},
           "PLT": {}
         };
 
-        Object.values(porFrota || {}).forEach(regFrota => {
+        frotasFiltro.forEach(frota => {
+          const regFrota = porFrota[frota];
           if (!regFrota) return;
 
           const turnosKeys = turnoSel === 'Todas' ? Object.keys(regFrota) : [turnoSel];
@@ -1500,51 +1548,54 @@
 
             Object.entries(regTurno || {}).forEach(([unidade, regUn]) => {
               if (!regUn) return;
-
               if (unidadeSel !== 'Todas' && unidadeSel !== unidade) return;
 
               DIAS.forEach(dia => {
                 const cel = regUn[dia];
                 if (!cel || !cel.r) return;
 
+                // filtro por operação
                 if (operacaoFiltro && cel.op !== operacaoFiltro) return;
 
+                // filtro por grupo
                 if (grupoFiltro && grupoFiltro !== "Todos") {
                   const g = getGrupoByOperacao(cel.op);
                   if (g !== grupoFiltro) return;
                 }
 
-                const mapa = diasPorUnidade[unidade];
-                if (!mapa) return;
-                const atual = mapa[dia] || 0;
-                const novo = Number(cel.r) || 0;
-                if (novo > atual) mapa[dia] = novo;
+                if (!porUnidadeDia[unidade]) porUnidadeDia[unidade] = {};
+                const atual = porUnidadeDia[unidade][dia] ?? 0;
+                const valor = Number(cel.r) || 0;
+
+                // ranking segue mesma lógica da apuração: usa o MAIOR valor por dia entre as frotas
+                if (valor > atual) {
+                  porUnidadeDia[unidade][dia] = valor;
+                }
               });
             });
           });
         });
 
-        let totalBB = 0, totalHA = 0, totalKG = 0, totalPLT = 0;
+        let bb = 0, ha = 0, kg = 0, plt = 0;
         const diasTrabalhadosSet = new Set();
 
-        Object.entries(diasPorUnidade).forEach(([unidade, mapaDias]) => {
-          Object.entries(mapaDias).forEach(([dia, val]) => {
-            if (!val) return;
-            if (unidade === "BB") totalBB += val;
-            else if (unidade === "HÁ") totalHA += val;
-            else if (unidade === "KG") totalKG += val;
-            else if (unidade === "PLT") totalPLT += val;
+        Object.entries(porUnidadeDia).forEach(([unidade, diasObj]) => {
+          Object.entries(diasObj).forEach(([dia, valor]) => {
+            const v = Number(valor) || 0;
+            if (v <= 0) return;
             diasTrabalhadosSet.add(dia);
+
+            if (unidade === "BB")      bb  += v;
+            else if (unidade === "HÁ") ha  += v;
+            else if (unidade === "KG") kg  += v;
+            else if (unidade === "PLT")plt += v;
           });
         });
 
-        if (totalBB || totalHA || totalKG || totalPLT) {
+        if (bb > 0 || ha > 0 || kg > 0 || plt > 0) {
           arr.push({
             operador,
-            bb: totalBB,
-            ha: totalHA,
-            kg: totalKG,
-            plt: totalPLT,
+            bb, ha, kg, plt,
             dias: diasTrabalhadosSet.size
           });
         }
@@ -1555,7 +1606,7 @@
         return;
       }
 
-      // ordena: mais dias, depois BB, HÁ, PLANTAS, KG
+      // ordena: mais dias, depois BB, HÁ, PLT, KG
       arr.sort((a, b) =>
         b.dias - a.dias ||
         b.bb - a.bb ||
@@ -1774,4 +1825,3 @@
   </script>
 </body>
 </html>
-
