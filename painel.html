@@ -949,11 +949,193 @@
       setTimeout(() => $('toast').classList.remove('show'), time);
     };
 
+    // ================= SUPABASE (CONFIG + HELPERS) =================
+    const SUPABASE_URL = "https://kessauwwzgqlvkxetkjc.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtlc3NhdXd3emdxbHZreGV0a2pjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ5MDM2MzIsImV4cCI6MjA4MDQ3OTYzMn0.H_8qWmGpL7F7xLK66TLrBO-2UDG9P26pS_OTzUMzn5Y";
+    const SB_HEADERS = {
+      "Content-Type": "application/json",
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+    };
+
+    const cacheOperadores = new Map(); // nome -> id
+    const cacheFazendas = new Map();   // nome -> id
+    const cacheOperacoes = new Map();  // nome -> id
+
+    async function sbGetOne(table, filters = {}) {
+      const params = new URLSearchParams({ select: "*", limit: "1" });
+      Object.entries(filters).forEach(([k, v]) => params.append(k, v));
+      const url = `${SUPABASE_URL}/rest/v1/${table}?${params.toString()}`;
+      const resp = await fetch(url, { headers: SB_HEADERS });
+      if (!resp.ok) {
+        console.error("Supabase SELECT error", table, await resp.text());
+        return null;
+      }
+      const data = await resp.json();
+      return data[0] || null;
+    }
+
+    async function sbInsert(table, payload) {
+      const resp = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+        method: "POST",
+        headers: { ...SB_HEADERS, Prefer: "return=representation" },
+        body: JSON.stringify(payload)
+      });
+      if (!resp.ok) {
+        console.error("Supabase INSERT error", table, await resp.text());
+        return null;
+      }
+      const data = await resp.json();
+      return data[0] || null;
+    }
+
+    async function getOrCreateFazendaId(nome) {
+      if (cacheFazendas.has(nome)) return cacheFazendas.get(nome);
+      const byName = await sbGetOne("fazendas", { nome: `eq.${nome}` });
+      if (byName) {
+        cacheFazendas.set(nome, byName.id);
+        return byName.id;
+      }
+      const created = await sbInsert("fazendas", {
+        codigo: nome.toUpperCase(),
+        nome
+      });
+      if (created) {
+        cacheFazendas.set(nome, created.id);
+        return created.id;
+      }
+      return null;
+    }
+
+    async function getOrCreateOperacaoId(nome) {
+      if (cacheOperacoes.has(nome)) return cacheOperacoes.get(nome);
+      const byName = await sbGetOne("operacoes", { nome: `eq.${nome}` });
+      if (byName) {
+        cacheOperacoes.set(nome, byName.id);
+        return byName.id;
+      }
+      const created = await sbInsert("operacoes", { nome });
+      if (created) {
+        cacheOperacoes.set(nome, created.id);
+        return created.id;
+      }
+      return null;
+    }
+
+    async function getOrCreateOperadorId(nome) {
+      if (cacheOperadores.has(nome)) return cacheOperadores.get(nome);
+
+      const byName = await sbGetOne("operadores", { nome: `eq.${nome}` });
+      if (byName) {
+        cacheOperadores.set(nome, byName.id);
+        return byName.id;
+      }
+
+      const search = new URLSearchParams({
+        select: "codigo",
+        order: "codigo.desc",
+        limit: "1"
+      });
+      const url = `${SUPABASE_URL}/rest/v1/operadores?${search.toString()}`;
+      let nextCodigo = 1;
+      try {
+        const resp = await fetch(url, { headers: SB_HEADERS });
+        if (resp.ok) {
+          const arr = await resp.json();
+          if (arr[0]?.codigo != null) {
+            nextCodigo = Number(arr[0].codigo) + 1;
+          }
+        }
+      } catch (e) {
+        console.error("Erro lendo último código de operador", e);
+      }
+
+      const created = await sbInsert("operadores", {
+        codigo: nextCodigo,
+        nome,
+        ativo: true
+      });
+      if (created) {
+        cacheOperadores.set(nome, created.id);
+        return created.id;
+      }
+      return null;
+    }
+
+    function getDateFromWeekAndDia(weekKey, diaSlug) {
+      const [ini] = weekKey.split("_");
+      const year = Number(ini.slice(0, 4));
+      const month = Number(ini.slice(4, 6)) - 1;
+      const day = Number(ini.slice(6, 8));
+      const base = new Date(year, month, day);
+      const idxMap = { seg: 0, ter: 1, qua: 2, qui: 3, sex: 4, sab: 5, dom: 6 };
+      const offset = idxMap[diaSlug] ?? 0;
+      base.setDate(base.getDate() + offset);
+      const yyyy = base.getFullYear();
+      const mm = String(base.getMonth() + 1).padStart(2, "0");
+      const dd = String(base.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    async function salvarRegistroSupabase({
+      operadorNome,
+      fazendaNome,
+      operacaoNome,
+      unidade,
+      diaSlug,
+      valorP,
+      valorR
+    }) {
+      if (!operacaoNome) return;
+
+      try {
+        const operador_id = await getOrCreateOperadorId(operadorNome);
+        const fazenda_id = await getOrCreateFazendaId(fazendaNome);
+        const operacao_id = await getOrCreateOperacaoId(operacaoNome);
+
+        if (!operador_id || !fazenda_id || !operacao_id) {
+          console.warn("IDs não encontrados para salvar no Supabase");
+          return;
+        }
+
+        const dataDia = getDateFromWeekAndDia(selectedWeekKey, diaSlug);
+
+        let bombas = 0, ha = 0, kg = 0, plantas = 0;
+        const r = Number(valorR) || 0;
+
+        if (unidade === "BB")      bombas = r;
+        else if (unidade === "HÁ") ha = r;
+        else if (unidade === "KG") kg = r;
+        else if (unidade === "PLT")plantas = r;
+
+        const payload = {
+          operador_id,
+          fazenda_id,
+          operacao_id,
+          data: dataDia,
+          valor_planejado: Number(valorP) || 0,
+          valor_realizado: r,
+          bombas_r: bombas,
+          hectares_r: ha,
+          kg_r: kg,
+          plantas_r: plantas,
+          trabalhou_no_dia: r > 0
+        };
+
+        await sbInsert("registros_diarios", payload);
+      } catch (e) {
+        console.error("Erro ao salvar registro no Supabase", e);
+      }
+    }
+
     // ================= LOGIN / CONTEXTO =================
     const usuario = localStorage.getItem('usuario_logado');
     const fazendasLiberadas = JSON.parse(localStorage.getItem('fazendas_liberadas') || '[]');
     const isAdmin = localStorage.getItem('is_admin') === 'true';
-    if (!usuario) window.location.href = 'login.html';
+
+    // se não tiver usuário logado, volta pra tela inicial (index.html)
+    if (!usuario) window.location.href = 'index.html';
+
     $('gerente-nome').textContent = usuario.toUpperCase();
 
     const fazendaSelect = $('fazenda-select');
@@ -964,6 +1146,7 @@
       : fazendasLiberadas;
 
     if (!Array.isArray(fazendasDisponiveis)) fazendasDisponiveis = [];
+
     if (fazendasDisponiveis.length === 0) {
       fazendaSelect.innerHTML = '<option value="">Nenhuma fazenda</option>';
       fazendaSelect.disabled = true;
@@ -973,6 +1156,7 @@
         const opt = new Option(f, f, false, f === fazendaAtual);
         fazendaSelect.add(opt);
       });
+
       if (!fazendasDisponiveis.includes(fazendaAtual)) {
         fazendaAtual = fazendasDisponiveis[0];
         localStorage.setItem('fazenda_atual', fazendaAtual);
@@ -1053,13 +1237,12 @@
         "VITTOR RAFAEL DE OLIVEIRA BONFIM",
         "RICARDO DE JESUS LOPES",
         "EVANDRO RODRIGUES"
-        ]
+      ]
     };
 
     // ================= GRUPOS DE OPERAÇÃO =================
     function getGrupoByOperacao(op) {
       const mapa = {
-        // grupo pulverização
         "Inseticida": "Pulverização",
         "Florada": "Pulverização",
         "Leprose": "Pulverização",
@@ -1067,7 +1250,6 @@
         "Mosca": "Pulverização",
         "Herbicida": "Pulverização",
 
-        // outros exemplos de grupos
         "Adubação": "Adubação",
         "Calagem": "Adubação",
         "Esterco": "Adubação",
@@ -1266,63 +1448,96 @@
       atualizarTituloRankingTabela();
     }
 
-    function salvar() {
-      const frotaSel = choicesFrota.getValue(true);
-      const operadorSel = choicesOper.getValue(true);
-      const diasSel = choicesDias.getValue(true);
+    async function salvar() {
+  const frotaSel = choicesFrota.getValue(true);
+  const operadorSel = choicesOper.getValue(true);
+  const diasSel = choicesDias.getValue(true);
 
-      const operacao = $('operacao').value.trim();
-      const turno = $('turno').value;
-      const unidade = $('unidade').value;
+  const operacao = $('operacao').value.trim();
+  const turno = $('turno').value;
+  const unidade = $('unidade').value;
 
-      const progRaw = $('prog').value.trim();
-      const realRaw = $('real').value.trim();
+  const progRaw = $('prog').value.trim();
+  const realRaw = $('real').value.trim();
 
-      const pValor = progRaw !== "" ? parseFloat(progRaw.replace(",", ".")) || 0 : 0;
-      const rValor = realRaw !== "" ? parseFloat(realRaw.replace(",", ".")) || 0 : 0;
+  const pValor = progRaw !== "" ? parseFloat(progRaw.replace(",", ".")) || 0 : 0;
+  const rValor = realRaw !== "" ? parseFloat(realRaw.replace(",", ".")) || 0 : 0;
 
-      if (!frotaSel.length)    return showToast("Selecione pelo menos uma frota!");
-      if (!operadorSel.length) return showToast("Selecione pelo menos um operador!");
-      if (!diasSel.length)     return showToast("Selecione pelo menos um dia!");
-      if (!operacao)           return showToast("Selecione a operação!");
+  if (!frotaSel.length)    return showToast("Selecione pelo menos uma frota!");
+  if (!operadorSel.length) return showToast("Selecione pelo menos um operador!");
+  if (!diasSel.length)     return showToast("Selecione pelo menos um dia!");
+  if (!operacao)           return showToast("Selecione a operação!");
 
-      const data = db.get();
-      const grupoOperacao = operacao ? getGrupoByOperacao(operacao) : null;
+  const data = db.get();
+  const grupoOperacao = operacao ? getGrupoByOperacao(operacao) : null;
 
-      operadorSel.forEach(operador => {
-        if (!data[operador]) data[operador] = {};
+  // vamos acumular as promises de Supabase aqui
+  const promisesSupabase = [];
 
-        frotaSel.forEach(frota => {
-          if (!data[operador][frota]) data[operador][frota] = {};
-          if (!data[operador][frota][turno]) data[operador][frota][turno] = {};
-          if (!data[operador][frota][turno][unidade]) data[operador][frota][turno][unidade] = {};
+  for (const operador of operadorSel) {
+    if (!data[operador]) data[operador] = {};
 
-          diasSel.forEach(dia => {
-            const existente = data[operador][frota][turno][unidade][dia] || {};
+    for (const frota of frotaSel) {
+      if (!data[operador][frota]) data[operador][frota] = {};
+      if (!data[operador][frota][turno]) data[operador][frota][turno] = {};
+      if (!data[operador][frota][turno][unidade]) data[operador][frota][turno][unidade] = {};
 
-            // se o campo estiver em branco, mantém o valor anterior
-            const novoP = progRaw !== "" ? pValor : (existente.p ?? 0);
-            const novoR = realRaw !== "" ? rValor : (existente.r ?? 0);
+      for (const dia of diasSel) {
+        const existente = data[operador][frota][turno][unidade][dia] || {};
 
-            const novaOp    = operacao || existente.op || "";
-            const novoGrupo = grupoOperacao || existente.grupo || getGrupoByOperacao(novaOp);
+        const novoP = progRaw !== "" ? pValor : (existente.p ?? 0);
+        const novoR = realRaw !== "" ? rValor : (existente.r ?? 0);
 
-            data[operador][frota][turno][unidade][dia] = {
-              p: novoP,
-              r: novoR,
-              op: novaOp,
-              grupo: novoGrupo
-            };
-          });
-        });
-      });
+        const novaOp    = operacao || existente.op || "";
+        const novoGrupo = grupoOperacao || existente.grupo || getGrupoByOperacao(novaOp);
 
-      db.set(data);
-      render();
-      calcularRanking();
-      limparFormulario();
-      showToast(`Lançamento salvo! (${operadorSel.length} operador(es) × ${frotaSel.length} frota(s))`);
+        data[operador][frota][turno][unidade][dia] = {
+          p: novoP,
+          r: novoR,
+          op: novaOp,
+          grupo: novoGrupo
+        };
+
+        // em vez de await aqui, só empilha a promise
+        promisesSupabase.push(
+          salvarRegistroSupabase({
+            operadorNome: operador,
+            fazendaNome: fazendaAtual,
+            operacaoNome: novaOp,
+            unidade,
+            diaSlug: dia,
+            valorP: novoP,
+            valorR: novoR
+          })
+        );
+      }
     }
+  }
+
+  // grava no localStorage de uma vez (rápido)
+  db.set(data);
+  render();
+  calcularRanking();
+
+  // agora espera TODAS as requisições em paralelo
+  try {
+    if (promisesSupabase.length > 0) {
+      await Promise.all(promisesSupabase);
+    }
+  } catch (e) {
+    console.error("Algum erro ao salvar no Supabase:", e);
+  }
+
+  limparFormulario();
+  showToast(`Lançamento salvo! (${operadorSel.length} operador(es) × ${frotaSel.length} frota(s))`);
+}
+const btn = $('btn-salvar');
+btn.disabled = true;
+btn.textContent = 'Salvando...';
+
+// depois que terminar o Promise.all:
+btn.disabled = false;
+btn.textContent = 'Salvar Lançamento';
 
     function render() {
       const data = db.get();
@@ -1399,7 +1614,6 @@
 
                   if (!diasSomados[d]) diasSomados[d] = { p, r };
                   else {
-                    // apuração usa o maior valor dentre as frotas
                     diasSomados[d].p = Math.max(diasSomados[d].p, p);
                     diasSomados[d].r = Math.max(diasSomados[d].r, r);
                   }
@@ -1528,7 +1742,6 @@
       const arr = [];
 
       Object.entries(data).forEach(([operador, porFrota]) => {
-        // para cada operador, vamos guardar o MAIOR R por dia/unidade entre as frotas
         const porUnidadeDia = {
           "BB": {},
           "HÁ": {},
@@ -1554,10 +1767,8 @@
                 const cel = regUn[dia];
                 if (!cel || !cel.r) return;
 
-                // filtro por operação
                 if (operacaoFiltro && cel.op !== operacaoFiltro) return;
 
-                // filtro por grupo
                 if (grupoFiltro && grupoFiltro !== "Todos") {
                   const g = getGrupoByOperacao(cel.op);
                   if (g !== grupoFiltro) return;
@@ -1567,7 +1778,6 @@
                 const atual = porUnidadeDia[unidade][dia] ?? 0;
                 const valor = Number(cel.r) || 0;
 
-                // ranking segue mesma lógica da apuração: usa o MAIOR valor por dia entre as frotas
                 if (valor > atual) {
                   porUnidadeDia[unidade][dia] = valor;
                 }
@@ -1606,7 +1816,6 @@
         return;
       }
 
-      // ordena: mais dias, depois BB, HÁ, PLT, KG
       arr.sort((a, b) =>
         b.dias - a.dias ||
         b.bb - a.bb ||
@@ -1692,7 +1901,7 @@
       const rows = [header];
       const semanaLabel = labelFromWeekKey(selectedWeekKey);
 
-      const SUFFIX_LEN = 8 + 1 + 8; // YYYYMMDD_YYYYMMDD
+      const SUFFIX_LEN = 8 + 1 + 8;
 
       for (let i = 0; i < localStorage.length; i++) {
         const k = localStorage.key(i);
@@ -1801,13 +2010,13 @@
         calcularRanking();
       });
 
-      $('btn-salvar').onclick = salvar;
+      $('btn-salvar').onclick = () => { salvar(); };
       $('btn-limpar').onclick = () => {
         if (confirm('Limpar todos os lançamentos da semana atual desta fazenda?')) {
           db.clear();
           render();
           calcularRanking();
-          showToast('Semana atual limpa!');
+          showToast('Semana atual limpa (somente local). Dados no banco permanecem.');
         }
       };
 
@@ -1816,7 +2025,7 @@
 
       $('btn-logout').onclick = () => {
         localStorage.removeItem('usuario_logado');
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
       };
 
       render();
