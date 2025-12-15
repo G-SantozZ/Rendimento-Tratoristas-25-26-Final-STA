@@ -271,6 +271,23 @@
       min-width: 170px;
     }
 
+    /* >>> Semana com Choices (igual Frota/Operador) <<< */
+    .week-select-wrapper .choices {
+      min-width: 210px;
+    }
+    .week-select-wrapper .choices__inner{
+      border-radius: 999px !important;
+      background: rgba(15,23,42,0.92) !important;
+      color: #e5e7eb !important;
+      border: 1px solid rgba(191,219,254,0.85) !important;
+      min-height: 36px !important;
+      padding: .15rem .35rem !important;
+    }
+    .week-select-wrapper .choices__list--dropdown{
+      border-radius: 12px !important;
+      overflow: hidden;
+    }
+
     .header-right {
       position: relative;
       display: flex;
@@ -396,12 +413,6 @@
       color: var(--muted);
     }
 
-    .grid { display: grid; gap: 1rem; }
-    .g-6 { grid-template-columns: 1.5fr 2fr 1fr 1fr 1fr 1fr; }
-    .g-3 { grid-template-columns: 2fr 1fr 1fr; }
-    @media (max-width: 1200px) { .g-6 { grid-template-columns: repeat(3, 1fr); } }
-    @media (max-width: 800px)  { .g-6, .g-3 { grid-template-columns: 1fr; } }
-
     label {
       font-weight: 600;
       color: var(--text);
@@ -449,6 +460,7 @@
       background: #ffffff;
     }
 
+    /* Choices.js */
     .choices { font-size: 0.85rem; }
     .choices__inner {
       border: 1.3px solid var(--border) !important;
@@ -572,6 +584,47 @@
       border: 1px solid #bbf7d0;
     }
 
+    /* ==== LAYOUT NOVO DO LANÇAMENTO ==== */
+    .card-lancamento .card-header { margin-bottom: 1.1rem; }
+    .card-lancamento .card-body-lancamento { display: flex; flex-direction: column; gap: 1.1rem; }
+
+    .lancamento-grid-top {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 1.8fr);
+      gap: 1rem 1.25rem;
+      align-items: flex-start;
+    }
+    .lancamento-filtros-col { display: flex; flex-direction: column; gap: 0.6rem; }
+    .lancamento-filtros-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+    .lancamento-grid-bottom {
+      display: grid;
+      grid-template-columns: minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1fr);
+      gap: 1rem 1.25rem;
+      align-items: flex-end;
+      margin-top: 0.2rem;
+    }
+    .card-lancamento .choices__inner { min-height: 110px !important; }
+    .bar-lancamento { justify-content: space-between; }
+
+    @media (max-width: 1100px) {
+      .lancamento-grid-top { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.4fr); }
+      .lancamento-filtros-col { grid-column: 1 / -1; }
+      .lancamento-filtros-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+    @media (max-width: 900px) {
+      .lancamento-grid-top { grid-template-columns: 1fr; }
+      .lancamento-filtros-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .lancamento-grid-bottom { grid-template-columns: 1fr; }
+      .bar-lancamento { flex-direction: column; align-items: stretch; }
+      .bar-lancamento .btn-primary { width: 100%; }
+      .bar-lancamento .pill { width: 100%; text-align: center; justify-content: center; }
+    }
+
+    /* TABELAS */
     .table-wrapper {
       overflow-x: auto;
       border-radius: var(--radius-lg);
@@ -608,11 +661,7 @@
     tbody tr:nth-child(even) td { background: #f9fafb; }
     tbody tr:nth-child(odd) td { background: #ffffff; }
     tbody tr:hover td { background: #ecfeff; }
-    .total {
-      background: #dcfce7 !important;
-      font-weight: 800;
-      color: #166534;
-    }
+    .total { background: #dcfce7 !important; font-weight: 800; color: #166534; }
     .operator {
       text-align: left !important;
       font-weight: 600;
@@ -624,12 +673,7 @@
     }
     .operator-name { display:inline-block; }
 
-    .row-actions {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      margin-right: 4px;
-    }
+    .row-actions { display: inline-flex; align-items: center; gap: 4px; margin-right: 4px; }
 
     .empty {
       padding: 2.5rem;
@@ -639,7 +683,6 @@
       font-size: 0.9rem;
     }
 
-    .edit-row-btn,
     .delete-row-btn {
       border: none;
       background: transparent;
@@ -649,34 +692,19 @@
       align-items: center;
       justify-content: center;
     }
-    .edit-row-btn svg,
     .delete-row-btn svg {
       width: 16px;
       height: 16px;
       stroke: none;
       transition: transform 0.15s ease, fill 0.15s ease;
+      fill: #dc2626;
     }
-    .edit-row-btn svg { fill: #0f766e; }
-    .delete-row-btn svg { fill: #dc2626; }
-    .edit-row-btn:hover svg {
-      transform: scale(1.08);
-      fill: #047857;
-    }
-    .delete-row-btn:hover svg {
-      transform: scale(1.08);
-      fill: #b91c1c;
-    }
+    .delete-row-btn:hover svg { transform: scale(1.08); fill: #b91c1c; }
 
     /* TABELA RANKING */
-    .ranking-wrapper table {
-      min-width: 820px;
-    }
-    .ranking-wrapper thead th {
-      background: linear-gradient(90deg, #0f766e, #047857);
-    }
-    .ranking-pos {
-      font-weight: 800;
-    }
+    .ranking-wrapper table { min-width: 980px; }
+    .ranking-wrapper thead th { background: linear-gradient(90deg, #0f766e, #047857); }
+    .ranking-pos { font-weight: 800; }
 
     .toast {
       position: fixed;
@@ -700,6 +728,7 @@
     .toast.show { transform: translateX(0); opacity: 1; }
   </style>
 </head>
+
 <body>
   <div class="top-bar">
     <div class="top-bar-left">
@@ -719,7 +748,6 @@
     <header>
       <div class="brand">
         <div class="brand-row">
-          <!-- LOGO -->
           <div class="brand-logo">
             <img src="logo-slp.png" alt="Cia Agrícola SLP">
           </div>
@@ -739,6 +767,7 @@
           </div>
         </div>
       </div>
+
       <div class="header-right">
         <div class="header-row">
           <span class="header-chip-label">Gerente responsável</span>
@@ -759,7 +788,7 @@
       </div>
       <div class="status-pill">
         <span class="status-label">Unidades</span>
-        <span class="status-value">BB · HÁ · KG · PLT</span>
+        <span class="status-value">BB · HÁ · KG · PLT · LTS</span>
       </div>
       <div class="status-pill">
         <span class="status-label">Modo de visualização</span>
@@ -768,114 +797,120 @@
     </div>
 
     <!-- Lançamento -->
-    <section class="card">
+    <section class="card card-lancamento">
       <div class="card-header">
         <div class="card-title">Lançamento</div>
         <div class="card-sub">Preencha os filtros e grave o planejado / realizado da semana.</div>
       </div>
 
-      <div class="grid g-6">
-        <div>
-          <label>
-            <span class="label-left">Frota <span class="multi">(multi)</span></span>
-            <button type="button" class="select-all-btn" data-target="frota">Selecionar todos</button>
-          </label>
-          <select id="frota" multiple></select>
+      <div class="card-body-lancamento">
+        <div class="lancamento-grid-top">
+          <div>
+            <label>
+              <span class="label-left">Frota <span class="multi">(multi)</span></span>
+              <button type="button" class="select-all-btn" data-target="frota">Selecionar todos</button>
+            </label>
+            <select id="frota" multiple></select>
+          </div>
+
+          <div>
+            <label>
+              <span class="label-left">Operador <span class="multi">(multi)</span></span>
+              <button type="button" class="select-all-btn" data-target="operador">Selecionar todos</button>
+            </label>
+            <select id="operador" multiple></select>
+          </div>
+
+          <div class="lancamento-filtros-col">
+            <div class="lancamento-filtros-row">
+              <div>
+                <label><span class="label-left">Operações</span></label>
+                <select id="operacao">
+                  <option value="">Todas</option>
+                  <option value="Inseticida">Inseticida</option>
+                  <option value="Florada">Florada</option>
+                  <option value="Adubação">Adubação</option>
+                  <option value="Calagem">Calagem</option>
+                  <option value="Esterco">Esterco</option>
+                  <option value="Pinta Preta">Pinta Preta</option>
+                  <option value="Roçadeira">Roçadeira</option>
+                  <option value="Trincha">Trincha</option>
+                  <option value="Leprose">Leprose</option>
+                  <option value="Mosca">Mosca</option>
+                  <option value="Herbicida">Herbicida</option>
+                  <option value="Poda">Poda</option>
+                  <option value="Diversos">Diversos</option>
+                  <option value="Drench">Drench</option>
+                </select>
+              </div>
+
+              <div>
+                <label><span class="label-left">Grupo</span></label>
+                <select id="grupo">
+                  <option value="Todos" selected>Todos</option>
+                  <option value="Pulverização">Pulverização</option>
+                  <option value="Adubação">Adubação</option>
+                  <option value="Manejo">Manejo</option>
+                  <option value="Diversos">Diversos</option>
+                </select>
+              </div>
+
+              <div>
+                <label><span class="label-left">Turno</span></label>
+                <select id="turno">
+                  <option value="Dia" selected>Dia</option>
+                  <option value="Noite">Noite</option>
+                  <option value="Todas">Todas</option>
+                </select>
+              </div>
+
+              <div>
+                <label><span class="label-left">Unidade</span></label>
+                <select id="unidade">
+                  <option value="BB" selected>BB</option>
+                  <option value="HÁ">HÁ</option>
+                  <option value="KG">KG</option>
+                  <option value="PLT">PLT</option>
+                  <option value="LTS">LTS</option>
+                  <option value="Todas">Todas</option>
+                </select>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div>
-          <label>
-            <span class="label-left">Operador <span class="multi">(multi)</span></span>
-            <button type="button" class="select-all-btn" data-target="operador">Selecionar todos</button>
-          </label>
-          <select id="operador" multiple></select>
+        <div class="lancamento-grid-bottom">
+          <div>
+            <label>
+              <span class="label-left">Dia da Semana <span class="multi">(multi)</span></span>
+              <button type="button" class="select-all-btn" data-target="dias">Selecionar todos</button>
+            </label>
+            <select id="dias" multiple>
+              <option value="seg">Segunda</option>
+              <option value="ter">Terça</option>
+              <option value="qua">Quarta</option>
+              <option value="qui">Quinta</option>
+              <option value="sex">Sexta</option>
+              <option value="sab">Sábado</option>
+              <option value="dom">Domingo</option>
+            </select>
+          </div>
+
+          <div>
+            <label><span class="label-left">Rend. Programado (por dia)</span></label>
+            <input id="prog" type="number" step="0.1" placeholder="0.0">
+          </div>
+
+          <div>
+            <label><span class="label-left">Rend. Real (por dia)</span></label>
+            <input id="real" type="number" step="0.1" placeholder="0.0">
+          </div>
         </div>
 
-        <div>
-          <label><span class="label-left">Operações</span></label>
-          <select id="operacao">
-            <option value="">Todas</option>
-            <option value="Inseticida">Inseticida</option>
-            <option value="Florada">Florada</option>
-            <option value="Adubação">Adubação</option>
-            <option value="Calagem">Calagem</option>
-            <option value="Esterco">Esterco</option>
-            <option value="Pinta Preta">Pinta Preta</option>
-            <option value="Roçadeira">Roçadeira</option>
-            <option value="Trincha">Trincha</option>
-            <option value="Leprose">Leprose</option>
-            <option value="Mosca">Mosca</option>
-            <option value="Herbicida">Herbicida</option>
-            <option value="Poda">Poda</option>
-            <option value="Diversos">Diversos</option>
-            <option value="Drench">Drench</option>
-          </select>
+        <div class="bar bar-lancamento">
+          <button class="btn btn-primary" id="btn-salvar">Salvar Lançamento</button>
+          <div class="pill" id="badge-semana"></div>
         </div>
-
-        <!-- NOVO: filtro de grupo -->
-        <div>
-          <label><span class="label-left">Grupo</span></label>
-          <select id="grupo">
-            <option value="Todos" selected>Todos</option>
-            <option value="Pulverização">Pulverização</option>
-            <option value="Adubação">Adubação</option>
-            <option value="Manejo">Manejo</option>
-            <option value="Diversos">Diversos</option>
-          </select>
-        </div>
-
-        <div>
-          <label><span class="label-left">Turno</span></label>
-          <select id="turno">
-            <option value="Dia" selected>Dia</option>
-            <option value="Noite">Noite</option>
-            <option value="Todas">Todas</option>
-          </select>
-        </div>
-
-        <div>
-          <label><span class="label-left">Unidade</span></label>
-          <select id="unidade">
-            <option value="BB" selected>BB</option>
-            <option value="HÁ">HÁ</option>
-            <option value="KG">KG</option>
-            <option value="PLT">PLT</option>
-            <option value="Todas">Todas</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="grid g-3" style="margin-top:1.3rem">
-        <div>
-          <label>
-            <span class="label-left">Dia da Semana <span class="multi">(multi)</span></span>
-            <button type="button" class="select-all-btn" data-target="dias">Selecionar todos</button>
-          </label>
-          <select id="dias" multiple>
-            <option value="seg">Segunda</option>
-            <option value="ter">Terça</option>
-            <option value="qua">Quarta</option>
-            <option value="qui">Quinta</option>
-            <option value="sex">Sexta</option>
-            <option value="sab">Sábado</option>
-            <option value="dom">Domingo</option>
-          </select>
-        </div>
-
-        <div>
-          <label><span class="label-left">Rend. Programado (por dia)</span></label>
-          <input id="prog" type="number" step="0.1" placeholder="0.0">
-        </div>
-
-        <div>
-          <label><span class="label-left">Rend. Real (por dia)</span></label>
-          <input id="real" type="number" step="0.1" placeholder="0.0">
-        </div>
-      </div>
-
-      <div class="bar">
-        <button class="btn btn-primary" id="btn-salvar">Salvar Lançamento</button>
-        <div class="pill" id="badge-semana"></div>
       </div>
     </section>
 
@@ -913,7 +948,6 @@
         <button class="btn btn-secondary" id="btn-export-todas">Baixar Excel – todas fazendas</button>
       </div>
 
-      <!-- Ranking em TABELA -->
       <p class="card-sub" id="ranking-title" style="margin-top:1.6rem;">
         Ranking – Todas operações
       </p>
@@ -928,6 +962,7 @@
               <th>HECTARES (R) · HÁ</th>
               <th>KG (R)</th>
               <th>PLANTAS (R)</th>
+              <th>LITROS (R) · LTS</th>
               <th>DIAS TRABALHADOS (R&gt;0)</th>
             </tr>
           </thead>
@@ -996,10 +1031,7 @@
         cacheFazendas.set(nome, byName.id);
         return byName.id;
       }
-      const created = await sbInsert("fazendas", {
-        codigo: nome.toUpperCase(),
-        nome
-      });
+      const created = await sbInsert("fazendas", { codigo: nome.toUpperCase(), nome });
       if (created) {
         cacheFazendas.set(nome, created.id);
         return created.id;
@@ -1031,30 +1063,21 @@
         return byName.id;
       }
 
-      const search = new URLSearchParams({
-        select: "codigo",
-        order: "codigo.desc",
-        limit: "1"
-      });
+      const search = new URLSearchParams({ select: "codigo", order: "codigo.desc", limit: "1" });
       const url = `${SUPABASE_URL}/rest/v1/operadores?${search.toString()}`;
       let nextCodigo = 1;
+
       try {
         const resp = await fetch(url, { headers: SB_HEADERS });
         if (resp.ok) {
           const arr = await resp.json();
-          if (arr[0]?.codigo != null) {
-            nextCodigo = Number(arr[0].codigo) + 1;
-          }
+          if (arr[0]?.codigo != null) nextCodigo = Number(arr[0].codigo) + 1;
         }
       } catch (e) {
         console.error("Erro lendo último código de operador", e);
       }
 
-      const created = await sbInsert("operadores", {
-        codigo: nextCodigo,
-        nome,
-        ativo: true
-      });
+      const created = await sbInsert("operadores", { codigo: nextCodigo, nome, ativo: true });
       if (created) {
         cacheOperadores.set(nome, created.id);
         return created.id;
@@ -1069,8 +1092,7 @@
       const day = Number(ini.slice(6, 8));
       const base = new Date(year, month, day);
       const idxMap = { seg: 0, ter: 1, qua: 2, qui: 3, sex: 4, sab: 5, dom: 6 };
-      const offset = idxMap[diaSlug] ?? 0;
-      base.setDate(base.getDate() + offset);
+      base.setDate(base.getDate() + (idxMap[diaSlug] ?? 0));
       const yyyy = base.getFullYear();
       const mm = String(base.getMonth() + 1).padStart(2, "0");
       const dd = String(base.getDate()).padStart(2, "0");
@@ -1078,13 +1100,7 @@
     }
 
     async function salvarRegistroSupabase({
-      operadorNome,
-      fazendaNome,
-      operacaoNome,
-      unidade,
-      diaSlug,
-      valorP,
-      valorR
+      operadorNome, fazendaNome, operacaoNome, unidade, diaSlug, valorP, valorR
     }) {
       if (!operacaoNome) return;
 
@@ -1092,21 +1108,18 @@
         const operador_id = await getOrCreateOperadorId(operadorNome);
         const fazenda_id = await getOrCreateFazendaId(fazendaNome);
         const operacao_id = await getOrCreateOperacaoId(operacaoNome);
-
-        if (!operador_id || !fazenda_id || !operacao_id) {
-          console.warn("IDs não encontrados para salvar no Supabase");
-          return;
-        }
+        if (!operador_id || !fazenda_id || !operacao_id) return;
 
         const dataDia = getDateFromWeekAndDia(selectedWeekKey, diaSlug);
 
-        let bombas = 0, ha = 0, kg = 0, plantas = 0;
+        let bombas = 0, ha = 0, kg = 0, plantas = 0, litros = 0;
         const r = Number(valorR) || 0;
 
-        if (unidade === "BB")      bombas = r;
+        if (unidade === "BB") bombas = r;
         else if (unidade === "HÁ") ha = r;
         else if (unidade === "KG") kg = r;
-        else if (unidade === "PLT")plantas = r;
+        else if (unidade === "PLT") plantas = r;
+        else if (unidade === "LTS") litros = r;
 
         const payload = {
           operador_id,
@@ -1119,6 +1132,7 @@
           hectares_r: ha,
           kg_r: kg,
           plantas_r: plantas,
+          litros_r: litros,         // <<< se sua tabela tiver esse campo, perfeito
           trabalhou_no_dia: r > 0
         };
 
@@ -1133,9 +1147,7 @@
     const fazendasLiberadas = JSON.parse(localStorage.getItem('fazendas_liberadas') || '[]');
     const isAdmin = localStorage.getItem('is_admin') === 'true';
 
-    // se não tiver usuário logado, volta pra tela inicial (index.html)
     if (!usuario) window.location.href = 'index.html';
-
     $('gerente-nome').textContent = usuario.toUpperCase();
 
     const fazendaSelect = $('fazenda-select');
@@ -1164,97 +1176,112 @@
     }
 
     // ================= DADOS FIXOS =================
-     const FROTAS_FIXAS = {
-  "BOA ESPERANÇA": [
-    "02-813","02-817","02-818","02-824","02-828","02-829",
-    "02-831","02-832","02-834","02-835","02-836","02-838","02-1205"
-  ],
+    const FROTAS_FIXAS = {
+      "BOA ESPERANÇA": [
+        "02-813","02-817","02-818","02-824","02-828","02-829",
+        "02-831","02-832","02-834","02-835","02-836","02-838","02-1205"
+      ],
+      "SANTA ANA": [
+        "02-722","02-723","02-727","02-728","02-732","02-733","02-741","02-743",
+        "02-737","02-740","02-739","02-747","02-746","02-076","02-748","02-749",
+        "02-750","02-751","02-752","02-014","02-058"
+      ],
+      "SLP": [
+        "02-077","02-073","02-067","02-075","02-059","02-058",
+        "02-050","02-080","02-074","02-078","02-061","02-076",
+        "02-063","02-724","02-049"
+      ],
+      "SANTA CLARA": [
+        "02-728","02-1104","02-1101","02-1105","02-1103"
+      ]
+    };
 
-  "SANTA ANA": [
-    "02-722","02-723","02-727","02-728","02-732","02-733","02-741","02-743",
-    "02-737","02-740","02-739","02-747","02-746","02-076","02-748","02-749",
-    "02-750","02-751","02-752","02-014","02-058"
-  ],
-
-  "SLP": [
-    "02-077","02-073","02-067","02-075","02-059","02-058",
-    "02-050","02-080","02-074","02-078","02-061","02-076",
-    "02-063","02-724","02-049"
-  ],
-
-  "SANTA CLARA": [
-    "02-728","02-1104","02-1101","02-1105","02-1103"
-  ]
-};
-
-const TRATORISTAS_FIXOS = {
-  "BOA ESPERANÇA": [
-    "MOACIR CARLOS ADAMATTI JUNIOR",
-    "REMOÇÃO",
-    "JOSÉ LAZARO PROTASIO",
-    "JOSÉ VALTER DOS SANTOS",
-    "VALDECI DOS SANTOS DE OLIVEIRO",
-    "MAYCON JHONATHAN RAMOS MACHADO",
-    "ELIAS MIGUEL RODRIGUES",
-    "LUCIO ESTEVAN MARTINS",
-    "VALDINEZ DA SILVA",
-    "DANIEL THIAGO",
-    "NIVALDO MARIANO DA SILVA NETO",
-    "LUIZ RICARDO DA FONSECA",
-    "LUIZ ANTONIO DA SILVA OLIVEIRA",
-    "FRANCIELE ANTUNES DE LIMA",
-    "LIDIANE BALIK NUNES",
-    "ERICA FERNANDA DE CAMARGO DE OLIVEIRA",
-    "JOAO DONIZETE DOS SANTOS SILVA"
-  ],
-
-  "SANTA ANA": [
-    "ADRIEL AUGUSTO DE CAMARGO","ALAF RODRIGUES DE CAMARGO","ALISSON MARTINS DOS SANTOS",
-    "ANDRE FELIPE GOMES BATISTA","ANTONIO BENEDITO RAMOS","AYRTON IZAAC NETO",
-    "BRUNO TELES DA ROCHA","CARLOS DE JESUS OLIVEIRA","EDINALDO SILVA LEITE",
-    "ELOANA DA SILVA SALES DOS SANTOS","FRANCISCO CLEMERSON OLIVEIRA DE LIMA",
-    "GILMAR LIMA DE SOUZA JUNIOR - IRRIGAÇÃO","IVAN CARLOS GOMES",
-    "JOSE RAVAEL RODRIGUES DE PAULA","JOSE SEABRA DA SILVA NETO",
-    "KAYK AUGUSTO DOS SANTOS PINTO","MARCELINO DA SILVA FILHO",
-    "MARCOS HENRIQUE APARECIDO NUNES","MAURO DIAS RODRIGUES",
-    "MAXSUEL DARIO DE OLIVEIRA","RAPHAEL DE OLIVEIRA","RICHARD DE OLIVEIRA",
-    "RONALDO PEREIRA","ZAQUEU ROCHEL","DANILO GUSSON"
-  ],
-
-"SLP": [
-   "IGOR DE LIMA HENES",
-   "GABRIEL EDUARDO DA SILVA",
-   "NAZILDO VASCO DA SILVA",
-   "MARIO SEBASTIÃO",
-   "VALTER DONIZETE EUFRASIO",
-   "DOUGLAS GIOVANI VAZ",
-   "JOÃO PAULO DA SILVA AGAPTO",
-   "LUCAS EURICO PIRES LUCIO",
-   "PAULO MARTINS DE OLIVEIRA",
-   "EDVALDO MACHADO DOS SANTOS",
-   "ROGÉRIO DA SILVA SANTI",
-   "ROBERTO SANTI",
-   "NIVALDO DE OLIVEIRA PAULINO",
-   "JOEL BENEDITO DOS SANTOS",
-   "GENIVALDONIZETTI FARRAPO",
-   "EDSON DONIZETE DOS SANTOS",
-   "LUCAS APARECIDO AUGUSTO DA SILVA",
-   "VITTOR RAFAEL DE OLIVEIRA BONFIM",
-   "EVANDRO RODRIGUES",
-   "ROGERIO MARQUES DA SILVA",
-   "LUIZ ANTONIO D SILVA OLIVEIRA",
-   "LUCAS DE JESUS DA SILVA RODRIGUES",
-   "IRINEU DE SOUSA LIMA"
-]
-    "SANTA CLARA": [
-    "DENILSON DE ALMEIDA OLIVEIRA",
-    "JOSÉ RENALVO",
-    "WELLINGTON CARLOS DE OLIVEIRA",
-    "DACIO FERMINO",
-    "JOSÉ MARIO CORREA",
-    "ARMANDO ROBERTO CANDIDO DE ARRUDA"
-  ]
-};
+    // >>>>> CORRIGIDO: TRATORISTAS_FIXOS sem duplicar const <<<<<
+    const TRATORISTAS_FIXOS = {
+      "BOA ESPERANÇA": [
+        "MOACIR CARLOS ADAMATTI JUNIOR",
+        "REMOÇÃO",
+        "JOSÉ LAZARO PROTASIO",
+        "JOSÉ VALTER DOS SANTOS",
+        "VALDECI DOS SANTOS DE OLIVEIRO",
+        "MAYCON JHONATHAN RAMOS MACHADO",
+        "ELIAS MIGUEL RODRIGUES",
+        "LUCIO ESTEVAN MARTINS",
+        "VALDINEZ DA SILVA",
+        "DANIEL THIAGO",
+        "NIVALDO MARIANO DA SILVA NETO",
+        "LUIZ RICARDO DA FONSECA",
+        "LUIZ ANTONIO DA SILVA OLIVEIRA",
+        "FRANCIELE ANTUNES DE LIMA",
+        "LIDIANE BALIK NUNES",
+        "ERICA FERNANDA DE CAMARGO DE OLIVEIRA",
+        "JOAO DONIZETE DOS SANTOS SILVA"
+      ],
+      "SANTA ANA": [
+        "ADRIEL AUGUSTO DE CAMARGO",
+        "ALAF RODRIGUES DE CAMARGO",
+        "ALISSON MARTINS DOS SANTOS",
+        "ANDRE FELIPE GOMES BATISTA",
+        "ANTONIO BENEDITO RAMOS",
+        "AYRTON IZAAC NETO",
+        "BRUNO TELES DA ROCHA",
+        "CARLOS DE JESUS OLIVEIRA",
+        "EDINALDO SILVA LEITE",
+        "ELOANA DA SILVA SALES DOS SANTOS",
+        "FRANCISCO CLEMERSON OLIVEIRA DE LIMA",
+        "GILMAR LIMA DE SOUZA JUNIOR - IRRIGAÇÃO",
+        "IVAN CARLOS GOMES",
+        "JOSE RAVAEL RODRIGUES DE PAULA",
+        "JOSE SEABRA DA SILVA NETO",
+        "KAYK AUGUSTO DOS SANTOS PINTO",
+        "MARCELINO DA SILVA FILHO",
+        "MARCOS HENRIQUE APARECIDO NUNES",
+        "MAURO DIAS RODRIGUES",
+        "MAXSUEL DARIO DE OLIVEIRA",
+        "RAPHAEL DE OLIVEIRA",
+        "RICHARD DE OLIVEIRA",
+        "RONALDO PEREIRA",
+        "ZAQUEU ROCHEL",
+        "DANILO GUSSON"
+      ],
+      "SLP": [
+        "IGOR DE LIMA HENES",
+        "GABRIEL EDUARDO DA SILVA",
+        "LUCAS EDUARDO DA SILVA",
+        "NAZILDO VASCO DA SILVA",
+        "MARIO SEBASTIÃO",
+        "VALTER DONIZETE EUFRASIO",
+        "DOUGLAS GIOVANI VAZ",
+        "JOÃO PAULO DA SILVA AGAPTO",
+        "LUCAS EURICO PIRES LUCIO",
+        "PAULO MARTINS DE OLIVEIRA",
+        "JUNIO PIRES DE FREITAS",
+        "EDVALDO MACHADO DOS SANTOS",
+        "ROGERIO DA SILVA SANTI",
+        "ROBERTO SANTI",
+        "NIVALDO DE OLIVEIRA PAULINO",
+        "JOEL BENEDITO DOS SANTOS",
+        "RODRIGO DA MATA CENDRETO",
+        "GENIVALDO DONIZETE FARRAPO",
+        "EDSON DONIZETE DOS SANTOS",
+        "LUCAS APARECIDO AUGUSTO DA SILVA",
+        "VITTOR RAFAEL DE OLIVEIRA BONFIM",
+        "RICARDO DE JESUS LOPES",
+        "EVANDRO RODRIGUES",
+        "ROGERIO MARQUES DA SILVA",
+        "LUIZ ANTONIO D SILVA OLIVEIRA",
+        "LUCAS DE JESUS DA SILVA RODRIGRUES",
+        "IRINEU DE SOUSA LIMA"
+      ],
+      "SANTA CLARA": [
+        "DENILSON DE ALMEIDA OLIVEIRA",
+        "JOSÉ RENALVO",
+        "WELLINGTON CARLOS DE OLIVEIRA",
+        "DACIO FERMINO",
+        "JOSÉ MARIO CORREA",
+        "ARMANDO ROBERTO CANDIDO DE ARRUDA"
+      ]
+    };
 
     // ================= GRUPOS DE OPERAÇÃO =================
     function getGrupoByOperacao(op) {
@@ -1265,15 +1292,12 @@ const TRATORISTAS_FIXOS = {
         "Pinta Preta": "Pulverização",
         "Mosca": "Pulverização",
         "Herbicida": "Pulverização",
-
         "Adubação": "Adubação",
         "Calagem": "Adubação",
         "Esterco": "Adubação",
-
         "Roçadeira": "Manejo",
         "Trincha": "Manejo",
         "Poda": "Manejo",
-
         "Diversos": "Diversos",
         "Drench": "Diversos"
       };
@@ -1330,55 +1354,8 @@ const TRATORISTAS_FIXOS = {
       return Array.from(set).sort();
     }
 
-    function preencherSemanaSelect() {
-      const sel = $('semana-select');
-      const semanas = listarSemanasFazenda();
-      if (!semanas.length) {
-        sel.innerHTML = '<option value="">Sem semana</option>';
-        sel.disabled = true;
-        return;
-      }
-      sel.disabled = false;
-      if (!semanas.includes(selectedWeekKey)) selectedWeekKey = semanas[semanas.length - 1];
-      sel.innerHTML = '';
-      semanas.forEach(k => {
-        const opt = new Option(labelFromWeekKey(k), k, false, k === selectedWeekKey);
-        sel.add(opt);
-      });
-      localStorage.setItem('semana_atual_key', selectedWeekKey);
-      updateSemanaUI();
-      render();
-    }
-
-    $('semana-select').addEventListener('change', () => {
-      selectedWeekKey = $('semana-select').value;
-      localStorage.setItem('semana_atual_key', selectedWeekKey);
-      updateSemanaUI();
-      render();
-    });
-
-    function unique(arr) { return Array.from(new Set(arr)); }
-
-    function getFrotas() {
-      const dataLs = JSON.parse(localStorage.getItem('frotas') || '{}');
-      const fromStorage = dataLs[fazendaAtual];
-      const base = (fromStorage && fromStorage.length) ? fromStorage : (FROTAS_FIXAS[fazendaAtual] || []);
-      return unique(base);
-    }
-
-    function getTratoristasAll(fazenda) {
-      const data = JSON.parse(localStorage.getItem('tratoristas') || '{}');
-      const fazData = data[fazenda];
-      if (fazData) {
-        const set = new Set();
-        Object.values(fazData).forEach(arr => (arr || []).forEach(o => set.add(o)));
-        return Array.from(set);
-      }
-      return TRATORISTAS_FIXOS[fazenda] || [];
-    }
-
-    // =============== Choices ===============  
-    let choicesFrota, choicesOper, choicesDias;
+    // ================= Choices ===============
+    let choicesFrota, choicesOper, choicesDias, choicesSemana;
 
     function initChoices() {
       choicesFrota = new Choices('#frota', {
@@ -1405,6 +1382,13 @@ const TRATORISTAS_FIXOS = {
         shouldSort: false
       });
 
+      // Semana: Choices igual os outros (single)
+      choicesSemana = new Choices('#semana-select', {
+        searchEnabled: false,
+        shouldSort: false,
+        itemSelectText: ''
+      });
+
       const diasOrdem = [
         { value: 'seg', label: 'Segunda' },
         { value: 'ter', label: 'Terça' },
@@ -1418,22 +1402,64 @@ const TRATORISTAS_FIXOS = {
       choicesDias.setChoices(diasOrdem, 'value', 'label', true);
     }
 
+    function preencherSemanaSelect() {
+      const semanas = listarSemanasFazenda();
+      if (!semanas.length) return;
+
+      if (!semanas.includes(selectedWeekKey)) selectedWeekKey = semanas[semanas.length - 1];
+
+      const items = semanas.map(k => ({
+        value: k,
+        label: labelFromWeekKey(k),
+        selected: k === selectedWeekKey
+      }));
+
+      choicesSemana.clearChoices();
+      choicesSemana.setChoices(items, 'value', 'label', true);
+
+      localStorage.setItem('semana_atual_key', selectedWeekKey);
+      updateSemanaUI();
+      render();
+    }
+
+    $('semana-select').addEventListener('change', () => {
+      selectedWeekKey = $('semana-select').value;
+      localStorage.setItem('semana_atual_key', selectedWeekKey);
+      updateSemanaUI();
+      render();
+      calcularRanking();
+    });
+
+    function unique(arr) { return Array.from(new Set(arr)); }
+
+    function getFrotas() {
+      const dataLs = JSON.parse(localStorage.getItem('frotas') || '{}');
+      const fromStorage = dataLs[fazendaAtual];
+      const base = (fromStorage && fromStorage.length) ? fromStorage : (FROTAS_FIXAS[fazendaAtual] || []);
+      return unique(base);
+    }
+
+    function getTratoristasAll(fazenda) {
+      const data = JSON.parse(localStorage.getItem('tratoristas') || '{}');
+      const fazData = data[fazenda];
+      if (fazData) {
+        const set = new Set();
+        Object.values(fazData).forEach(arr => (arr || []).forEach(o => set.add(o)));
+        return Array.from(set);
+      }
+      return TRATORISTAS_FIXOS[fazenda] || [];
+    }
+
     function updateFrotasChoices() {
       const frotas = getFrotas();
       choicesFrota.clearChoices();
-      choicesFrota.setChoices(
-        frotas.map(f => ({ value: f, label: f })),
-        'value','label', true
-      );
+      choicesFrota.setChoices(frotas.map(f => ({ value: f, label: f })), 'value','label', true);
     }
 
     function updateOperadores() {
       const ops = getTratoristasAll(fazendaAtual);
       choicesOper.clearChoices();
-      choicesOper.setChoices(
-        ops.map(o => ({ value: o, label: o })),
-        'value','label', true
-      );
+      choicesOper.setChoices(ops.map(o => ({ value: o, label: o })), 'value','label', true);
     }
 
     fazendaSelect.addEventListener('change', () => {
@@ -1452,7 +1478,6 @@ const TRATORISTAS_FIXOS = {
       return Array.from(set);
     }
 
-    // =============== FORM / CRUD ===============  
     function limparFormulario() {
       choicesFrota.removeActiveItems();
       choicesOper.removeActiveItems();
@@ -1465,95 +1490,83 @@ const TRATORISTAS_FIXOS = {
     }
 
     async function salvar() {
-  const frotaSel = choicesFrota.getValue(true);
-  const operadorSel = choicesOper.getValue(true);
-  const diasSel = choicesDias.getValue(true);
+      const frotaSel     = choicesFrota.getValue(true);
+      const operadorSel  = choicesOper.getValue(true);
+      const diasSel      = choicesDias.getValue(true);
 
-  const operacao = $('operacao').value.trim();
-  const turno = $('turno').value;
-  const unidade = $('unidade').value;
+      const operacao = $('operacao').value.trim();
+      const turno    = $('turno').value;
+      const unidade  = $('unidade').value;
 
-  const progRaw = $('prog').value.trim();
-  const realRaw = $('real').value.trim();
+      const progRaw = $('prog').value.trim();
+      const realRaw = $('real').value.trim();
 
-  const pValor = progRaw !== "" ? parseFloat(progRaw.replace(",", ".")) || 0 : 0;
-  const rValor = realRaw !== "" ? parseFloat(realRaw.replace(",", ".")) || 0 : 0;
+      const pValor = progRaw !== "" ? (parseFloat(progRaw.replace(",", ".")) || 0) : 0;
+      const rValor = realRaw !== "" ? (parseFloat(realRaw.replace(",", ".")) || 0) : 0;
 
-  if (!frotaSel.length)    return showToast("Selecione pelo menos uma frota!");
-  if (!operadorSel.length) return showToast("Selecione pelo menos um operador!");
-  if (!diasSel.length)     return showToast("Selecione pelo menos um dia!");
-  if (!operacao)           return showToast("Selecione a operação!");
+      if (!frotaSel.length)    return showToast("Selecione pelo menos uma frota!");
+      if (!operadorSel.length) return showToast("Selecione pelo menos um operador!");
+      if (!diasSel.length)     return showToast("Selecione pelo menos um dia!");
+      if (!operacao)           return showToast("Selecione a operação!");
 
-  const data = db.get();
-  const grupoOperacao = operacao ? getGrupoByOperacao(operacao) : null;
+      const btn = $('btn-salvar');
+      const oldText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Salvando...';
 
-  // vamos acumular as promises de Supabase aqui
-  const promisesSupabase = [];
+      const data = db.get();
+      const grupoOperacao = getGrupoByOperacao(operacao);
+      const promisesSupabase = [];
 
-  for (const operador of operadorSel) {
-    if (!data[operador]) data[operador] = {};
+      for (const operador of operadorSel) {
+        if (!data[operador]) data[operador] = {};
 
-    for (const frota of frotaSel) {
-      if (!data[operador][frota]) data[operador][frota] = {};
-      if (!data[operador][frota][turno]) data[operador][frota][turno] = {};
-      if (!data[operador][frota][turno][unidade]) data[operador][frota][turno][unidade] = {};
+        for (const frota of frotaSel) {
+          if (!data[operador][frota]) data[operador][frota] = {};
+          if (!data[operador][frota][turno]) data[operador][frota][turno] = {};
+          if (!data[operador][frota][turno][unidade]) data[operador][frota][turno][unidade] = {};
 
-      for (const dia of diasSel) {
-        const existente = data[operador][frota][turno][unidade][dia] || {};
+          for (const dia of diasSel) {
+            const existente = data[operador][frota][turno][unidade][dia] || {};
 
-        const novoP = progRaw !== "" ? pValor : (existente.p ?? 0);
-        const novoR = realRaw !== "" ? rValor : (existente.r ?? 0);
+            const novoP = progRaw !== "" ? pValor : (existente.p ?? 0);
+            const novoR = realRaw !== "" ? rValor : (existente.r ?? 0);
 
-        const novaOp    = operacao || existente.op || "";
-        const novoGrupo = grupoOperacao || existente.grupo || getGrupoByOperacao(novaOp);
+            data[operador][frota][turno][unidade][dia] = {
+              p: novoP,
+              r: novoR,
+              op: operacao,
+              grupo: grupoOperacao
+            };
 
-        data[operador][frota][turno][unidade][dia] = {
-          p: novoP,
-          r: novoR,
-          op: novaOp,
-          grupo: novoGrupo
-        };
-
-        // em vez de await aqui, só empilha a promise
-        promisesSupabase.push(
-          salvarRegistroSupabase({
-            operadorNome: operador,
-            fazendaNome: fazendaAtual,
-            operacaoNome: novaOp,
-            unidade,
-            diaSlug: dia,
-            valorP: novoP,
-            valorR: novoR
-          })
-        );
+            promisesSupabase.push(
+              salvarRegistroSupabase({
+                operadorNome: operador,
+                fazendaNome: fazendaAtual,
+                operacaoNome: operacao,
+                unidade,
+                diaSlug: dia,
+                valorP: novoP,
+                valorR: novoR
+              })
+            );
+          }
+        }
       }
+
+      db.set(data);
+      render();
+      calcularRanking();
+
+      try { if (promisesSupabase.length) await Promise.all(promisesSupabase); }
+      catch (e) { console.error("Erro ao salvar no Supabase:", e); }
+
+      limparFormulario();
+      btn.disabled = false;
+      btn.textContent = oldText;
+
+      showToast(`Lançamento salvo! (${operadorSel.length} operador(es) × ${frotaSel.length} frota(s))`);
     }
-  }
-
-  // grava no localStorage de uma vez (rápido)
-  db.set(data);
-  render();
-  calcularRanking();
-
-  // agora espera TODAS as requisições em paralelo
-  try {
-    if (promisesSupabase.length > 0) {
-      await Promise.all(promisesSupabase);
-    }
-  } catch (e) {
-    console.error("Algum erro ao salvar no Supabase:", e);
-  }
-
-  limparFormulario();
-  showToast(`Lançamento salvo! (${operadorSel.length} operador(es) × ${frotaSel.length} frota(s))`);
-}
-const btn = $('btn-salvar');
-btn.disabled = true;
-btn.textContent = 'Salvando...';
-
-// depois que terminar o Promise.all:
-btn.disabled = false;
-btn.textContent = 'Salvar Lançamento';
 
     function render() {
       const data = db.get();
@@ -1566,14 +1579,12 @@ btn.textContent = 'Salvar Lançamento';
 
       if (!Object.keys(data).length) {
         tbody.innerHTML = `<tr><td colspan="19" class="empty">Nenhum dado lançado.</td></tr>`;
-        calcularRanking();
         return;
       }
 
       const frotasFiltro = getFrotasSelecionadasOuTodas(data);
       if (!frotasFiltro.length) {
         tbody.innerHTML = `<tr><td colspan="19" class="empty">Nenhuma frota com dados.</td></tr>`;
-        calcularRanking();
         return;
       }
 
@@ -1593,9 +1604,7 @@ btn.textContent = 'Salvar Lançamento';
             unidadesKeys.forEach(uKey => {
               const reg = unObj[uKey];
               if (!reg) return;
-              DIAS.forEach(d => {
-                if (reg[d]?.op) operacoes.add(reg[d].op.trim());
-              });
+              DIAS.forEach(d => { if (reg[d]?.op) operacoes.add(reg[d].op.trim()); });
             });
           });
         });
@@ -1658,10 +1667,7 @@ btn.textContent = 'Salvar Lançamento';
         });
       });
 
-      linhas.sort((a, b) =>
-        a.operador.localeCompare(b.operador) ||
-        a.operacao.localeCompare(b.operacao)
-      );
+      linhas.sort((a, b) => a.operador.localeCompare(b.operador) || a.operacao.localeCompare(b.operacao));
 
       if (!linhas.length) {
         tbody.innerHTML = `<tr><td colspan="19" class="empty">Nenhum dado para o filtro atual.</td></tr>`;
@@ -1715,8 +1721,6 @@ btn.textContent = 'Salvar Lançamento';
           }
         };
       });
-
-      calcularRanking();
     }
 
     // =============== RANKING EM TABELA ===============  
@@ -1727,13 +1731,10 @@ btn.textContent = 'Salvar Lançamento';
       const grupoValue = grupoSelect.value;
 
       let title = 'Ranking – ';
-      if (opValue) {
-        title += opSelect.selectedOptions[0].textContent;
-      } else if (grupoValue && grupoValue !== 'Todos') {
-        title += `Grupo: ${grupoSelect.selectedOptions[0].textContent}`;
-      } else {
-        title += 'Todas operações';
-      }
+      if (opValue) title += opSelect.selectedOptions[0].textContent;
+      else if (grupoValue && grupoValue !== 'Todos') title += `Grupo: ${grupoSelect.selectedOptions[0].textContent}`;
+      else title += 'Todas operações';
+
       $('ranking-title').textContent = title;
     }
 
@@ -1749,7 +1750,7 @@ btn.textContent = 'Salvar Lançamento';
       tbodyRanking.innerHTML = "";
 
       if (!Object.keys(data).length) {
-        tbodyRanking.innerHTML = `<tr><td colspan="7" class="empty">Nenhum dado lançado.</td></tr>`;
+        tbodyRanking.innerHTML = `<tr><td colspan="8" class="empty">Nenhum dado lançado.</td></tr>`;
         return;
       }
 
@@ -1762,7 +1763,8 @@ btn.textContent = 'Salvar Lançamento';
           "BB": {},
           "HÁ": {},
           "KG": {},
-          "PLT": {}
+          "PLT": {},
+          "LTS": {}
         };
 
         frotasFiltro.forEach(frota => {
@@ -1790,19 +1792,15 @@ btn.textContent = 'Salvar Lançamento';
                   if (g !== grupoFiltro) return;
                 }
 
-                if (!porUnidadeDia[unidade]) porUnidadeDia[unidade] = {};
-                const atual = porUnidadeDia[unidade][dia] ?? 0;
+                const atual = porUnidadeDia[unidade]?.[dia] ?? 0;
                 const valor = Number(cel.r) || 0;
-
-                if (valor > atual) {
-                  porUnidadeDia[unidade][dia] = valor;
-                }
+                if (valor > atual) porUnidadeDia[unidade][dia] = valor;
               });
             });
           });
         });
 
-        let bb = 0, ha = 0, kg = 0, plt = 0;
+        let bb = 0, ha = 0, kg = 0, plt = 0, lts = 0;
         const diasTrabalhadosSet = new Set();
 
         Object.entries(porUnidadeDia).forEach(([unidade, diasObj]) => {
@@ -1811,24 +1809,21 @@ btn.textContent = 'Salvar Lançamento';
             if (v <= 0) return;
             diasTrabalhadosSet.add(dia);
 
-            if (unidade === "BB")      bb  += v;
-            else if (unidade === "HÁ") ha  += v;
-            else if (unidade === "KG") kg  += v;
-            else if (unidade === "PLT")plt += v;
+            if (unidade === "BB") bb += v;
+            else if (unidade === "HÁ") ha += v;
+            else if (unidade === "KG") kg += v;
+            else if (unidade === "PLT") plt += v;
+            else if (unidade === "LTS") lts += v;
           });
         });
 
-        if (bb > 0 || ha > 0 || kg > 0 || plt > 0) {
-          arr.push({
-            operador,
-            bb, ha, kg, plt,
-            dias: diasTrabalhadosSet.size
-          });
+        if (bb > 0 || ha > 0 || kg > 0 || plt > 0 || lts > 0) {
+          arr.push({ operador, bb, ha, kg, plt, lts, dias: diasTrabalhadosSet.size });
         }
       });
 
       if (!arr.length) {
-        tbodyRanking.innerHTML = `<tr><td colspan="7" class="empty">Nenhum dado para o filtro atual.</td></tr>`;
+        tbodyRanking.innerHTML = `<tr><td colspan="8" class="empty">Nenhum dado para o filtro atual.</td></tr>`;
         return;
       }
 
@@ -1838,6 +1833,7 @@ btn.textContent = 'Salvar Lançamento';
         b.ha - a.ha ||
         b.plt - a.plt ||
         b.kg - a.kg ||
+        b.lts - a.lts ||
         a.operador.localeCompare(b.operador)
       );
 
@@ -1850,6 +1846,7 @@ btn.textContent = 'Salvar Lançamento';
             <td>${st.ha.toFixed(1)}</td>
             <td>${st.kg.toFixed(1)}</td>
             <td>${st.plt.toFixed(1)}</td>
+            <td>${st.lts.toFixed(1)}</td>
             <td>${st.dias} dia(s)</td>
           </tr>
         `);
@@ -1862,9 +1859,7 @@ btn.textContent = 'Salvar Lançamento';
       const csv = rows.map(r => r.map(v => {
         const s = String(v ?? '');
         const esc = s.replace(/"/g, '""');
-        return (esc.includes(sep) || esc.includes('"') || esc.includes('\n'))
-          ? `"${esc}"`
-          : esc;
+        return (esc.includes(sep) || esc.includes('"') || esc.includes('\n')) ? `"${esc}"` : esc;
       }).join(sep)).join('\r\n');
 
       const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
@@ -1880,40 +1875,25 @@ btn.textContent = 'Salvar Lançamento';
 
     function exportApuracaoFazenda() {
       const tabela = document.querySelector('.table-wrapper table');
-      if (!tabela) {
-        showToast('Nenhuma tabela para exportar.');
-        return;
-      }
+      if (!tabela) return showToast('Nenhuma tabela para exportar.');
 
       const rows = [];
-      const trs = tabela.querySelectorAll('tr');
-
-      trs.forEach((tr, idx) => {
+      tabela.querySelectorAll('tr').forEach(tr => {
         const cells = Array.from(tr.cells);
         if (!cells.length) return;
         if (cells[0].classList.contains('empty')) return;
-
-        const rowVals = cells.map(td =>
-          td.innerText.replace(/\s+/g, ' ').trim()
-        );
-        rows.push(rowVals);
+        rows.push(cells.map(td => td.innerText.replace(/\s+/g, ' ').trim()));
       });
 
-      if (rows.length === 0) {
-        showToast('Nenhum dado para exportar.');
-        return;
-      }
+      if (!rows.length) return showToast('Nenhum dado para exportar.');
 
       const semanaLabel = labelFromWeekKey(selectedWeekKey).replace(/[\/]/g, '-');
-      const nome = `Apuracao_${fazendaAtual}_${semanaLabel}.csv`;
-      downloadCsv(rows, nome);
+      downloadCsv(rows, `Apuracao_${fazendaAtual}_${semanaLabel}.csv`);
       showToast('Arquivo da fazenda/semana exportado!');
     }
 
     function exportTodasFazendasSemana() {
-      const header = [
-        'Fazenda','Semana','Operador','Frota','Turno','Unidade','Dia','P','R','Operação'
-      ];
+      const header = ['Fazenda','Semana','Operador','Frota','Turno','Unidade','Dia','P','R','Operação'];
       const rows = [header];
       const semanaLabel = labelFromWeekKey(selectedWeekKey);
 
@@ -1956,12 +1936,7 @@ btn.textContent = 'Salvar Lançamento';
                   if (operacaoFiltro && operacaoFiltro !== "" && cel.op !== operacaoFiltro) return;
 
                   rows.push([
-                    fazendaNome,
-                    semanaLabel,
-                    operador,
-                    frota,
-                    turno,
-                    unidade,
+                    fazendaNome, semanaLabel, operador, frota, turno, unidade,
                     dia.toUpperCase(),
                     Number(cel.p) || 0,
                     Number(cel.r) || 0,
@@ -1974,13 +1949,9 @@ btn.textContent = 'Salvar Lançamento';
         });
       }
 
-      if (rows.length === 1) {
-        showToast('Nenhum dado encontrado para essa semana em todas as fazendas.');
-        return;
-      }
+      if (rows.length === 1) return showToast('Nenhum dado encontrado para essa semana em todas as fazendas.');
 
-      const nome = `Rendimentos_TODAS_FAZENDAS_${semanaLabel.replace(/[\/]/g,'-')}.csv`;
-      downloadCsv(rows, nome);
+      downloadCsv(rows, `Rendimentos_TODAS_FAZENDAS_${semanaLabel.replace(/[\/]/g,'-')}.csv`);
       showToast('Arquivo detalhado de todas as fazendas exportado!');
     }
 
@@ -1997,34 +1968,19 @@ btn.textContent = 'Salvar Lançamento';
         btn.addEventListener('click', () => {
           const target = btn.dataset.target;
           if (target === 'frota') {
-            const values = getFrotas();
-            choicesFrota.setChoiceByValue(values);
+            choicesFrota.setChoiceByValue(getFrotas());
           } else if (target === 'operador') {
-            const values = getTratoristasAll(fazendaAtual);
-            choicesOper.setChoiceByValue(values);
+            choicesOper.setChoiceByValue(getTratoristasAll(fazendaAtual));
           } else if (target === 'dias') {
-            const values = DIAS.slice();
-            choicesDias.setChoiceByValue(values);
+            choicesDias.setChoiceByValue(DIAS.slice());
           }
         });
       });
 
-      $('operacao').addEventListener('change', () => {
-        render();
-        calcularRanking();
-      });
-      $('grupo').addEventListener('change', () => {
-        render();
-        calcularRanking();
-      });
-      $('turno').addEventListener('change', () => {
-        render();
-        calcularRanking();
-      });
-      $('unidade').addEventListener('change', () => {
-        render();
-        calcularRanking();
-      });
+      $('operacao').addEventListener('change', () => { render(); calcularRanking(); });
+      $('grupo').addEventListener('change', () => { render(); calcularRanking(); });
+      $('turno').addEventListener('change', () => { render(); calcularRanking(); });
+      $('unidade').addEventListener('change', () => { render(); calcularRanking(); });
 
       $('btn-salvar').onclick = () => { salvar(); };
       $('btn-limpar').onclick = () => {
@@ -2044,13 +2000,10 @@ btn.textContent = 'Salvar Lançamento';
         window.location.href = 'index.html';
       };
 
+      updateSemanaUI();
       render();
       calcularRanking();
     });
   </script>
 </body>
 </html>
-
-
-
-
